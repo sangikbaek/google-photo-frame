@@ -1,0 +1,32 @@
+name: Update Google Photos JSON
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 자정(UTC)에 실행
+  workflow_dispatch:  # 필요하면 수동 실행 가능
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 클론
+        uses: actions/checkout@v3
+
+      - name: Python 설치
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: 의존성 설치
+        run: pip install requests
+
+      - name: Google 포토 JSON 업데이트
+        run: python update_photos.py
+
+      - name: 변경 사항 커밋 및 푸시
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add photos.json
+          git commit -m "🔄 Update photos.json with latest Google Photos images" || echo "No changes to commit"
+          git push
